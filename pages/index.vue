@@ -1,48 +1,185 @@
-<script setup lang="ts">
-// stores
-const testStore = useTest();
-// const { locale, setLocale, availableLocales } = useI18n();
+<script lang="ts" setup>
+import type { ProductListModel, ProductDetailModel, CategoryNameListModel } from '~/models/apiModel';
+import type { landingPageProdGroupModel } from '~/models/viewModel';
+import throttle from 'lodash.throttle';
+
+const cateStore = useCategory();
 const {
-  testCallApi
-} = testStore;
+  cateNameList,
+} = storeToRefs(cateStore);
 const {
-  fetchData
-} = storeToRefs(testStore);
-onMounted(async () => {
-  // await testCallApi();
-  // console.log(`fetchData`, fetchData);
-  // throw createError({
-  //   statusCode: 500,
-  //   statusMessage: '500 error'
-  // })
-  // console.log(`availableLocales`, availableLocales);
-  // console.log(`locale`, locale.value);
+  getCateNameList
+} = cateStore;
+
+// carousel
+const currentIndex: Ref<number> = ref(0);
+const images = ref([
+  'https://dummyjson.com/image/800x400/008080/ffffff?text=Hello+World+NO+1',
+  'https://dummyjson.com/image/800x400/ff9b9b/ffffff?text=Hello+Athem+NO+2',
+  'https://dummyjson.com/image/800x400/ffe1b2/ffffff?text=Hello+World+NO+3',
+  'https://dummyjson.com/image/800x400/95e5da/ffffff?text=Hello+Athem+NO+4',
+  'https://dummyjson.com/image/800x400/bfc2ff/ffffff?text=Hello+World+NO+5',
+]);
+// product highlight
+const cateList: Ref<CategoryNameListModel> = ref([]);
+const productGroupList: Ref<Array<landingPageProdGroupModel>> = ref([]);
+const isLoading: Ref<boolean> = ref(false);
+const idx: Ref<number> = ref(0);
+const isEnd: Ref<boolean> = ref(false);
+const container: Ref<HTMLElement | null> = ref(null);
+
+
+
+// 設置定時器 ID
+let intervalId = null;
+
+// 設置樣式，用於移動輪播內容
+const carouselStyle = computed(() => {
+  return {
+    transform: `translateX(-${currentIndex.value * 100}%)`,
+    transition: 'transform 1s ease'
+  };
 });
 
-// // 當前選擇的語言
-// const selectedLang = ref(locale.value)
+// 切換圖片
+const nextSlide = () => {
+  currentIndex.value = (currentIndex.value + 1) % images.value.length;
+};
 
-// // 切換語言的方法
-// const switchLan = (event: Event) => {
-//   if(event.target) {
+// 設置定時器
+const startCarousel = () => {
+  intervalId = setInterval(nextSlide, 3000);
+};
 
-//     const newLanguage = event.target.value;
-//     locale.value = newLanguage;
-//   }
-// };
+// 清除定時器
+const stopCarousel = () => {
+  if (intervalId) {
+    clearInterval(intervalId);
+  }
+};
+
+
+// ====== product ======
+const loadMoreData = async () => {
+  if (isLoading.value || isEnd.value) return;
+  isLoading.value = true;
+  const cateVal = cateList.value;
+
+  try {
+    const data: ProductListModel = await $fetch(`https://dummyjson.com/products/category/${cateVal[idx.value]}?limit=4`, { responseType: 'json' });
+    const products = data.products;
+    if (idx.value >= cateVal.length) {
+      isEnd.value = true;
+    } else {
+      productGroupList.value = [...productGroupList.value, {categoryName: products[0].category, productList: products}]
+      idx.value += 1;
+    }
+  } catch (err) {
+    console.error('Failed to load data:', err);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+let throt_fun = throttle(async () => {
+  await loadMoreData();
+}, 1000);
+
+const handleScrollAction = async () => {
+  const scrollTop = window.scrollY || window.pageYOffset;
+  const scrollHeight = document.documentElement.scrollHeight;
+  const clientHeight = window.innerHeight;
+
+  // determinate is user scrolls to the buttom
+  if (scrollTop + clientHeight >= scrollHeight - 10) {
+    throt_fun();
+  }
+};
+
+onMounted(async() => {
+  startCarousel();
+  await getCateNameList().then(() => {
+    cateList.value = cateNameList.value;
+  }).then(() => {
+    loadMoreData();
+  }).catch( err => {console.error(err)})
+  
+  nextTick(() => {
+      window.addEventListener('scroll', handleScrollAction);
+  });
+});
+
+onUnmounted(() => {
+  stopCarousel();
+
+  if (container.value) {
+    window.removeEventListener('scroll', handleScrollAction);
+  }
+});
 </script>
 
 <template>
-  <div>
-    Page: index
-    <!-- <select v-model="selectedLang" @change="switchLan($event)">
-      <option v-for="lc in availableLocales" :value="lc">{{ lc }}</option>
-    </select> -->
-    <!-- <button @click="setLocale('en')">en</button>
-    <button @click="setLocale('ch')">ch</button> -->
-    {{ $t('category') }}
+  <div class="container" ref="container">
+    <div>
+      <div class="carousel">
+        <div class="carousel-wrapper">
+          <div class="carousel-images" :style="carouselStyle">
+            <img v-for="(image, index) in images" :key="index" :src="image" class="carousel-image" />
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div v-for="list in productGroupList">
+      <div>
+        <h2>{{ list.categoryName }}</h2>
+        <div class="flex">
+          <div v-for="prod in list.productList" :key="prod.id">
+            <p>{{ prod.title }}</p>
+            <img :src="prod.thumbnail" alt="">
+            <p>{{ prod.price }} cad</p>
+            <p>{{ prod.stock }} left</p>
+            <p>rating: {{ prod.rating }}</p>
+            <button>add to cart</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div v-if="isLoading">
+      <h1>Loading...</h1> 
+    </div>
   </div>
 </template>
 
 <style scoped>
+.flex {
+  display: flex;
+}
+
+.container {
+  height: 100%;
+}
+
+.carousel {
+  overflow: hidden;
+  width: 800px;
+  height: 400px; 
+  position: relative;
+}
+
+.carousel-wrapper {
+  display: flex;
+}
+
+.carousel-images {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.carousel-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 </style>

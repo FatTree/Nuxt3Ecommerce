@@ -14,10 +14,14 @@
     "@pinia/nuxt": "^0.5.4",
     "@types/vue-router": "^2.0.0",
     "firebase": "^10.13.1",
+    "lodash.throttle": "^4.1.1",
     "nuxt": "^3.13.0",
     "nuxt-svgo": "^4.0.4",
     "pinia": "^2.2.2",
     "vue": "latest",
     "vue-i18n": "^9.14.0"
+  },
+  "devDependencies": {
+    "@types/lodash.throttle": "^4.1.9"
   }
 }

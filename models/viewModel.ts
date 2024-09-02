@@ -1,3 +1,5 @@
+import type { ProductDetailModel } from "./apiModel";
+
 export type RegistrationModel = {
     email: string;
     password: string;
@@ -31,4 +33,9 @@ export type item = {
 export type purchaseOrderItem = {
     purchaseID: string;
     purchaseItems: Array<item>;
+}
+
+export type landingPageProdGroupModel = {
+    categoryName: string;
+    productList: Array<ProductDetailModel>;
 }

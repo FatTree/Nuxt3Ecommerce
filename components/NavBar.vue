@@ -3,7 +3,7 @@ const { locale, locales, setLocale, availableLocales } = useI18n();
 
 const categoryStore = useCategory();
 const {
-  categoryCallApi
+  getCateProdList
 } = categoryStore;
 
 const {
@@ -27,7 +27,7 @@ const switchCate = () => {
 }
 
 onBeforeMount(async () => {
-  await categoryCallApi();
+  await getCateProdList();
 })
 </script>
 
