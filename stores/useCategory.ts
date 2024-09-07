@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import useAPI from '~/composables/useApi';
+import type { ProductListModel } from '~/models/apiModel';
 
 const storeName = 'category';
 export const useCategory = defineStore(storeName, () => {
@@ -20,8 +21,10 @@ export const useCategory = defineStore(storeName, () => {
     }
 
     // https://dummyjson.com/products/category/smartphones
-    const getCateProdList = async (cate?: string) =>  {
-        const url: string = cate ? `/api/products/categories/${cate}?limit=4` : '/api/products/categories'
+    const getCateProdList = async (limit=4, skip=0, cate?: string) =>  {
+        // https://dummyjson.com/products/category/smartphones?limit=4
+        const url: string = cate ? `https://dummyjson.com/products/category/${cate}?limit=${limit}&skip=${skip}` : 'https://dummyjson.com/products/categories'
+        console.log(`url`, url);
         return callAPI(url);
     }
     

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-const router = useRouter();
-
 const email: Ref<string> = ref('ecithome2024@test.com');
 const password: Ref<string> = ref('aaaa123');
 const status = ref({ message: '', type: '' });

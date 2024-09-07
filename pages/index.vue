@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import type { ProductListModel, ProductDetailModel, CategoryNameListModel } from '~/models/apiModel';
 import type { landingPageProdGroupModel } from '~/models/viewModel';
-import throttle from 'lodash.throttle';
+
+// import throttle from 'lodash.throttle';
 
 const cateStore = useCategory();
 const {
@@ -10,6 +11,7 @@ const {
 const {
   getCateNameList
 } = cateStore;
+
 
 // carousel
 const currentIndex: Ref<number> = ref(0);
@@ -26,12 +28,11 @@ const productGroupList: Ref<Array<landingPageProdGroupModel>> = ref([]);
 const isLoading: Ref<boolean> = ref(false);
 const idx: Ref<number> = ref(0);
 const isEnd: Ref<boolean> = ref(false);
-const container: Ref<HTMLElement | null> = ref(null);
 
 
 
 // 設置定時器 ID
-let intervalId = null;
+let intervalId: NodeJS.Timeout | null = null;
 
 // 設置樣式，用於移動輪播內容
 const carouselStyle = computed(() => {
@@ -81,20 +82,22 @@ const loadMoreData = async () => {
   }
 };
 
-let throt_fun = throttle(async () => {
-  await loadMoreData();
-}, 1000);
+useProdHL(loadMoreData);
 
-const handleScrollAction = async () => {
-  const scrollTop = window.scrollY || window.pageYOffset;
-  const scrollHeight = document.documentElement.scrollHeight;
-  const clientHeight = window.innerHeight;
+// let throt_fun = throttle(async () => {
+//   await loadMoreData();
+// }, 1000);
 
-  // determinate is user scrolls to the buttom
-  if (scrollTop + clientHeight >= scrollHeight - 10) {
-    throt_fun();
-  }
-};
+// const handleScrollAction = async () => {
+//   const scrollTop = window.scrollY || window.pageYOffset;
+//   const scrollHeight = document.documentElement.scrollHeight;
+//   const clientHeight = window.innerHeight;
+
+//   // determinate is user scrolls to the buttom
+//   if (scrollTop + clientHeight >= scrollHeight - 10) {
+//     throt_fun();
+//   }
+// };
 
 onMounted(async() => {
   startCarousel();
@@ -104,17 +107,17 @@ onMounted(async() => {
     loadMoreData();
   }).catch( err => {console.error(err)})
   
-  nextTick(() => {
-      window.addEventListener('scroll', handleScrollAction);
-  });
+  // nextTick(() => {
+  //     window.addEventListener('scroll', handleScrollAction);
+  // });
 });
 
 onUnmounted(() => {
   stopCarousel();
 
-  if (container.value) {
-    window.removeEventListener('scroll', handleScrollAction);
-  }
+  // if (container.value) {
+  //   window.removeEventListener('scroll', handleScrollAction);
+  // }
 });
 </script>
 
@@ -134,14 +137,15 @@ onUnmounted(() => {
       <div>
         <h2>{{ list.categoryName }}</h2>
         <div class="flex">
-          <div v-for="prod in list.productList" :key="prod.id">
+          <ProductItem :productList="list.productList" />
+          <!-- <div v-for="prod in list.productList" :key="prod.id">
             <p>{{ prod.title }}</p>
             <img :src="prod.thumbnail" alt="">
             <p>{{ prod.price }} cad</p>
             <p>{{ prod.stock }} left</p>
             <p>rating: {{ prod.rating }}</p>
             <button>add to cart</button>
-          </div>
+          </div> -->
         </div>
       </div>
     </div>

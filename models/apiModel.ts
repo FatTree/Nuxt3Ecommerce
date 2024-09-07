@@ -12,7 +12,7 @@ export type Product_MetaModel = {
     qrCode: string
 }
 export type ProductDetailModel = {
-    id: number,
+    id: string,
     title: string,
     description: string,
     category: string,
