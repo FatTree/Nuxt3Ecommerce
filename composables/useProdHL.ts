@@ -19,7 +19,8 @@ export const useProdHL = (func: Function) => {
   };
   
   onMounted(async() => {
-    await handleScrollAction();
+    console.log(`useProdHL`);
+    // await handleScrollAction();
     nextTick(() => {
         window.addEventListener('scroll', handleScrollAction);
     });

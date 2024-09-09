@@ -29,8 +29,6 @@ const isLoading: Ref<boolean> = ref(false);
 const idx: Ref<number> = ref(0);
 const isEnd: Ref<boolean> = ref(false);
 
-
-
 // 設置定時器 ID
 let intervalId: NodeJS.Timeout | null = null;
 
@@ -84,40 +82,16 @@ const loadMoreData = async () => {
 
 useProdHL(loadMoreData);
 
-// let throt_fun = throttle(async () => {
-//   await loadMoreData();
-// }, 1000);
-
-// const handleScrollAction = async () => {
-//   const scrollTop = window.scrollY || window.pageYOffset;
-//   const scrollHeight = document.documentElement.scrollHeight;
-//   const clientHeight = window.innerHeight;
-
-//   // determinate is user scrolls to the buttom
-//   if (scrollTop + clientHeight >= scrollHeight - 10) {
-//     throt_fun();
-//   }
-// };
-
-onMounted(async() => {
+onBeforeMount(async () => {
   startCarousel();
-  await getCateNameList().then(() => {
-    cateList.value = cateNameList.value;
-  }).then(() => {
-    loadMoreData();
-  }).catch( err => {console.error(err)})
-  
-  // nextTick(() => {
-  //     window.addEventListener('scroll', handleScrollAction);
-  // });
+  await getCateNameList();
+  cateList.value = cateNameList.value;
+  await loadMoreData();
 });
 
 onUnmounted(() => {
   stopCarousel();
 
-  // if (container.value) {
-  //   window.removeEventListener('scroll', handleScrollAction);
-  // }
 });
 </script>
 
@@ -137,15 +111,7 @@ onUnmounted(() => {
       <div>
         <h2>{{ list.categoryName }}</h2>
         <div class="flex">
-          <ProductItem :productList="list.productList" />
-          <!-- <div v-for="prod in list.productList" :key="prod.id">
-            <p>{{ prod.title }}</p>
-            <img :src="prod.thumbnail" alt="">
-            <p>{{ prod.price }} cad</p>
-            <p>{{ prod.stock }} left</p>
-            <p>rating: {{ prod.rating }}</p>
-            <button>add to cart</button>
-          </div> -->
+          <ProductItem v-for="item in list.productList" :product="item" :category="list.categoryName" />
         </div>
       </div>
     </div>

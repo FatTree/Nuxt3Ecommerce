@@ -39,3 +39,11 @@ export type landingPageProdGroupModel = {
     categoryName: string;
     productList: Array<ProductDetailModel>;
 }
+
+export type cartProductModel = {
+    id: string;
+    title: string;
+    price: number;
+    quantity: number;
+    thumbnail: string;
+}

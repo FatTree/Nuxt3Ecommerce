@@ -118,6 +118,7 @@ const getAll = async () => {
 
 onMounted(async () => {
   await getAll();
+  await loadMoreData();
 })
 
 </script>
@@ -144,7 +145,7 @@ onMounted(async () => {
         <h3>product list</h3>
         <h2>{{ category }}</h2>
         <div class="flex" style="max-width: 1000px;flex-wrap: wrap;">
-          <ProductItem :productList="productList" :category="category" />
+          <ProductItem v-for="item in productList" :product="item" :category="category" />
         </div>
         <h3 v-if="isLoading">
           loading...

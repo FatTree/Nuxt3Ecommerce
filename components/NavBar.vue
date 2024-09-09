@@ -2,6 +2,8 @@
 const { locale, locales, setLocale, availableLocales } = useI18n();
 
 const categoryStore = useCategory();
+const shoppingCartStore = useShoppingCartStore();
+
 const {
   getCateProdList
 } = categoryStore;
@@ -10,20 +12,28 @@ const {
   categoryList
 } = storeToRefs(categoryStore);
 
+const {
+    cart, 
+} = storeToRefs(shoppingCartStore);
+
 // i18n
 const selectedLang = ref(locale.value)
 const switchLan = (event: Event) => {
-  console.log('selectedLang',selectedLang.value)
-  if(event.target) {
-    const newLanguage = event.target.value;
-    locale.value = newLanguage;
-  }
+  const tg = event.target as HTMLInputElement
+  const newLanguage = tg.value;
+  locale.value = newLanguage;
 };
 
 // category
 const isOpen: Ref<boolean> = ref(false);
 const switchCate = () => {
   isOpen.value = !isOpen.value;
+}
+
+const isCartOpen: Ref<boolean> = ref(false);
+
+const openShoppingCart = () => {
+  isCartOpen.value = !isCartOpen.value;
 }
 
 onBeforeMount(async () => {
@@ -45,7 +55,8 @@ onBeforeMount(async () => {
     </div>
     <nuxt-link to="/member"><svgo-user-solid /></nuxt-link>
     <div>
-      <label><svgo-cart-shopping-solid /></label>
+      <label @click="openShoppingCart"><svgo-cart-shopping-solid /></label>
+      <shopping-cart v-show="isCartOpen" :cartProduct="cart" />
     </div>
     <div>
       <svgo-language-solid />
