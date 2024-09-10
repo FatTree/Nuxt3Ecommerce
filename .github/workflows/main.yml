@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     env: 
-      NUXT_APP_BASE_URL: /BreadcrumbsNuxt3Ecommerce/
+      NUXT_APP_BASE_URL: /Nuxt3Ecommerce/
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
