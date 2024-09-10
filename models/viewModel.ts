@@ -46,4 +46,5 @@ export type cartProductModel = {
     price: number;
     quantity: number;
     thumbnail: string;
+    stock: number;
 }

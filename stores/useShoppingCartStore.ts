@@ -45,6 +45,13 @@ export const useShoppingCartStore = defineStore(storeName, () => {
         saveCart();
     }
 
+    const updateQuantity = (id: string, quantity: number) => {
+        const product = cart.value.find(p => p.id === id);
+        if (product && quantity <= product.stock) {
+            product.quantity = quantity;
+        }
+    };
+
     const findItemQuantity = (id: string): number => {
         const item = cart.value.find(i => i.id === id);
         if(item) {
@@ -71,6 +78,7 @@ export const useShoppingCartStore = defineStore(storeName, () => {
         totalQuantity,
         totalAmount,
         loadCart,
-        findItemQuantity
+        findItemQuantity,
+        updateQuantity
     }
 })

@@ -16,6 +16,12 @@ const {
     cart, 
 } = storeToRefs(shoppingCartStore);
 
+const router = useRouter();
+
+const goToPage = (cate: string) => {
+    router.push(`/${cate}`);
+};
+
 // i18n
 const selectedLang = ref(locale.value)
 const switchLan = (event: Event) => {
@@ -47,7 +53,7 @@ onBeforeMount(async () => {
     <div class="category">
       <label @click="switchCate"><svgo-list-solid /></label>
       <ul :class="isOpen?'':'none'">
-        <li v-for="item in categoryList" :key="item.slug">
+        <li v-for="item in categoryList" :key="item.slug" @click="goToPage(item.slug)">
           {{ item.name}}
         </li>
       </ul>

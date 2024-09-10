@@ -8,6 +8,12 @@ const props = withDefaults(defineProps<Props>(), {
     cartProduct: () => ([]),
 });
 
+const router = useRouter();
+
+const goToPage = () => {
+    router.push('/purchaseOrder');
+};
+
 const shoppingCartStore = useShoppingCartStore();
 
 const {
@@ -35,7 +41,7 @@ onMounted(() => {
                 <button @click="removeFromCart(item.id)">delete</button>
             </div>
         </div>
-        <button>purchase order</button>
+        <button @click="goToPage">purchase order</button>
     </div>
 </template>
 
