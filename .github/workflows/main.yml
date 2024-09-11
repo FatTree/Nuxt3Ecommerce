@@ -31,6 +31,22 @@ jobs:
         uses: actions/upload-pages-artifact@v1
         with:
           path: ./.output/public
+  
+  unitTest:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js "20"
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+          cache: "npm"
+      - name: Execute Unit tests
+        run: |
+          npm ci
+          npm run test 
+    
   # Deployment job
   deploy:
     # Add a dependency to the build job
