@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap');
+
+@mixin fw-ex-blod {
+    font-weight: 800;
+}
+
+@mixin fw-blod {
+    font-weight: 600;
+}
+
+@mixin fw-normal {
+    font-weight: normal;
+}
+
+@mixin fw-thin {
+    font-weight: 100;
+}
+
+@mixin title-l {
+    font-size: 30px;
+    line-height: 40px;
+    @include fw-ex-blod;
+    @include mobile {
+        font-size: 26px;
+    }
+}
+
+@mixin title-m {
+    font-size: 20px;
+    line-height: 25px;
+    @include fw-ex-blod;
+    @include mobile {
+        font-size: 18px;
+    }
+}
+
+@mixin title-s {
+    font-size: 16px;
+    line-height: 20px;
+    @include fw-ex-blod;
+    @include mobile {
+        font-size: 14px;
+    }
+}
+
+@mixin paragraph-l {
+    font-size: 16px;
+    line-height: 24px;
+}
+
+@mixin paragraph-m {
+    font-size: 14px;
+    line-height: 20px;
+}
+
+@mixin paragraph-s {
+    font-size: 12px;
+    line-height: 18px;
+}
+
+@mixin label-l {
+    font-size: 16px;
+    line-height: 16px;
+}
+
+@mixin label-m {
+    font-size: 14px;
+    line-height: 14px;
+}
+
+@mixin label-s {
+    font-size: 12px;
+    line-height: 12px;
+}

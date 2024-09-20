@@ -42,14 +42,80 @@ function updateParentValue(value: number) {
 }
 </script>
 <template>
-    <div>
-        <p @click="toProductDetail(product.id)">{{ product.brand }} - {{ product.title }}</p>
-        <img :src="product.thumbnail" alt="" @click="toProductDetail(product.id)">
-        <p>{{ product.price }} cad</p>
-        <p>{{ product.stock }} left</p>
-        <p>rating: {{ product.rating }}</p>
-        <p>{{ remain }}</p>
-        <Amount :isDisabled="isDisabled" :max="remain" @inputValue="updateParentValue" />
+    <div class="productItem">
+        <h3 class="productItem__title" :title="product.brand + ' - ' +product.title" @click="toProductDetail(product.id)">{{ product.brand }} - {{ product.title }}</h3>
+        <div class="productItem__rating">
+            <RatingStars :rating="product.rating" /> 
+            {{ product.rating }}
+        </div>
+        <img class="productItem__img" :src="product.thumbnail" alt="" @click="toProductDetail(product.id)">
+        <div class="productItem__info">
+            <p class="price">{{ product.price }} cad</p>
+            <p class="left">{{ product.stock }} left</p>
+        </div>
         <ButtonAddToCart :isDisabled="isDisabled" :cartProduct="productToCartFormatter(product, parentValue)" />
     </div>
 </template>
+<style scoped lang="scss">
+
+.productItem {
+    background-color: $white;
+    border-radius: .5em;
+    box-shadow: 0px 0px 15px $white-hover;
+    padding: 1.5em;
+    width: 15em;
+    height: 27em;
+    margin: 0 0 2em 1em;
+    transition: all .5s;
+    cursor: pointer;
+
+    @include mobile {
+        padding: 1em;
+        width: 12em;
+        height: 22em;
+    }
+
+    &:hover {
+        box-shadow: 0px 0px 15px $white-hover-active;
+    }
+
+    &__title {
+        @include title-s;
+        margin-bottom: 1em;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        line-clamp: 2;
+        white-space: normal; 
+        height: 2.7em;
+    }
+
+    &__rating {
+        display: flex;
+        margin-bottom: 1em;
+        gap: 1em;
+    }
+
+    &__img {
+        width: 15em;
+        height: 15em;
+        object-fit: cover;
+        margin-bottom: 1em;
+
+        @include mobile {
+            width: 10em;
+            height: 10em;
+        }
+    }
+
+    &__info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1em;
+        > .left {
+            color: $white-hover-active;
+        }
+    }
+}
+</style>

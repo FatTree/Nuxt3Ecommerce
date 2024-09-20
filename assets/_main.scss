@@ -1,0 +1,30 @@
+@import './styles/_reset';
+@import './styles/_rwd';
+@import './styles/_color';
+@import './styles/_font';
+
+* {
+    font-family: "Noto Sans TC", sans-serif !important;
+}
+
+.none {
+    display: none;
+}
+
+.flex {
+    display: flex;
+}
+
+.customBtn {
+    border-radius: .5em;
+    padding: 1em;
+    cursor: pointer;
+    transition: all .5s;
+    text-align: center;
+    background-color: $yellow-normal;
+    @include title-s;
+
+    &:hover {
+        background-color: $yellow-normal-hover;
+    }
+}

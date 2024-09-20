@@ -2,12 +2,11 @@
 
 <template>
   <div class="layout">
-    Layout: layout
-    <svgo-user-solid />
-    {{ $t('category') }}
     <navBar />
     <slot />
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+
+</style>

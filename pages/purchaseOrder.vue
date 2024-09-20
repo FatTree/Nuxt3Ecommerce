@@ -3,16 +3,6 @@ import auth from '~/middleware/auth';
 import type { cartProductModel } from '~/models/viewModel';
 
 const shoppingCartStore = useShoppingCartStore();
-/**
- * cart,
-        addToCart,
-        removeFromCart,
-        clearCart,
-        totalQuantity,
-        totalAmount,
-        loadCart,
-        findItemQuantity
- */
 const { 
   cart,
   totalQuantity,

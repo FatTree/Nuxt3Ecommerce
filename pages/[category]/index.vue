@@ -2,6 +2,7 @@
 import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router';
 import type { ProductDetailModel } from '~/models/apiModel';
+import throttle from 'lodash.throttle';
 
 // router
 const route = useRoute();
@@ -26,8 +27,8 @@ const isLoading: Ref<boolean> = ref(false);
 const isEnd: Ref<boolean> = ref(false);
 const filteredList: Ref<ProductDetailModel[]> = ref([]);
 const brand: Ref<string[]> = ref([]);
-
-const selectedBrand: Ref<string> = ref('');
+const isFilterDropdownOpen: Ref<boolean> = ref(false);
+const selectedBrandName: Ref<string> = ref('Search Brand...');
 const selectedTitle: Ref<string> = ref('');
 
 let isFiltered = false;
@@ -80,16 +81,52 @@ const loadMoreData = async () => {
 useProdHL(loadMoreData);
 
 // filter
+const switchFilterDropDown = () => {
+  isFilterDropdownOpen.value = !isFilterDropdownOpen.value;
+}
+
+const basicFilterAction = (result: ProductDetailModel[]) => {
+  filteredList.value = result;
+  isEnd.value = false;
+  productList.value = filteredList.value.slice(0, limit.value);
+  isFiltered = true;
+  
+  total.value = result.length;
+  loaded.value = limit.value;
+}
+const setSelectedBrandName = (val: string) => {
+  isFilterDropdownOpen.value = false;
+  
+  if(val.trim() !== '') {
+    selectedBrandName.value = val;
+    let result: ProductDetailModel[] = allProductsList.value.products;
+    result = result.filter( item => item.brand === selectedBrandName.value)
+    basicFilterAction(result);
+  }
+}
+
+let throt_fun = throttle( async () => {
+    const titleVal = selectedTitle.value;
+    if(titleVal.trim() !== '') {
+      let result: ProductDetailModel[] = allProductsList.value.products;
+      result = result.filter(item => item.title.toLowerCase().includes(selectedTitle.value.toLowerCase()))
+      basicFilterAction(result);
+    }
+}, 1000);
+
+watch(selectedTitle, () => {
+  if (selectedTitle.value.length < 3) return;
+  throt_fun();
+})
 const searchProducts = () => {
   let result: ProductDetailModel[] = allProductsList.value.products;
-  const brandVal = selectedBrand.value;
+  // const brandVal = selectedBrand.value;
   const titleVal = selectedTitle.value;
-  if(brandVal.trim() !== '') {
-    result = result.filter( item => item.brand === selectedBrand.value)
-  }
+  // if(brandVal.trim() !== '') {
+  //   result = result.filter( item => item.brand === selectedBrand.value)
+  // }
   if(titleVal.trim() !== '') {
     result = result.filter(item => item.title.toLowerCase().includes(selectedTitle.value.toLowerCase()))
-    console.log(`result`, result);
   }
 
   isEnd.value = false;
@@ -130,16 +167,29 @@ onMounted(async () => {
       category: {{ category }}
     </p>
     <div class="content">
-      <div>
-        <h3>Search</h3>
-        brand: <select v-model="selectedBrand">
-          <option v-for="b in brand" :value="b" :key="b">
-            {{ b }}
-          </option>
-        </select> <br>
-        product name: <input type="text" v-model="selectedTitle"> <br>
-        <button @click="searchProducts">search</button>
-        <button @click="getAll">get all</button><br>
+      <div class="filter">
+        <h3 class="filter__title">
+          <svgo-filter-solid />
+          Filter
+        </h3>
+        <div class="filter__input filter__select" @click.stop="switchFilterDropDown">
+          <div class="selected">
+            <label for="">{{ selectedBrandName }}</label>
+            <svgo-angle-right-solid class="selectArrow" />
+          </div>
+          <div class="options" v-show="isFilterDropdownOpen">
+            <p class="options__option" 
+              v-for="b in brand" 
+              :value="b" 
+              :key="b"
+              @click.stop="setSelectedBrandName(b)">
+              {{ b }}
+            </p>
+          </div>
+        </div>
+        <input class="filter__input" type="text" v-model="selectedTitle" placeholder="product name">
+        <!-- <button @click="searchProducts">search</button>
+        <button @click="getAll">get all</button><br> -->
       </div>
       <div>
         <h3>product list</h3>
@@ -155,11 +205,70 @@ onMounted(async () => {
   </div>
 </template>
 
-<style scoped>
+<style lang="scss"coped>
+@mixin inputBasic {
+  border: 1px solid $violet-normal;
+  border-radius: .5em;
+  padding: 1em;
+  background-color: $white;
+  margin-bottom: 1em;
+}
+
 .content {
   display: flex;
 }
-.flex {
-  display: flex;
+
+.filter {
+  padding: 1em;
+  border: 1px solid $white-hover;
+  border-radius: .5em;
+  background-color: $white;
+  /* width: 15em; */
+  height: 10em;
+  
+  &__title {
+    margin-bottom: 1em;
+  }
+
+  &__select {
+    position: relative;
+    @include label-m;
+
+    > .selected {
+      display: flex;
+      justify-content: space-between;
+
+      > .selectArrow {
+        rotate: 90deg;
+        width: 1em;
+        height: 1em;
+      }
+    }
+
+    
+    > .options {
+      @include inputBasic;
+      padding: 0;
+      position: absolute;
+      top: 3.2em;
+      left: 0;
+      right: 0;
+
+      .options__option {
+        padding: 1em;
+        cursor: default;
+
+        &:hover {
+          transition: background-color .5s;
+          background-color: $violet-light-hover;
+        }
+      }
+
+    }
+  }  
+  &__input {
+    @include inputBasic;
+  }
 }
+
 </style>

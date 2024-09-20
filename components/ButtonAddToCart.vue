@@ -19,9 +19,7 @@ const {
 } = shoppingCartStore;
 </script>
 <template>
-    <div>
-        <button :disabled="isDisabled" @click.stop="addToCart(cartProduct)">
-            add to cart
-        </button>
+    <div class="customBtn" :disabled="isDisabled" @click.stop="addToCart(cartProduct)">
+        add to cart
     </div>
 </template>

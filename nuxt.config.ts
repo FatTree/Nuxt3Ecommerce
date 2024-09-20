@@ -4,6 +4,9 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
   devtools: { enabled: true },
   modules: ['@pinia/nuxt', '@nuxtjs/i18n', 'nuxt-svgo'],
+  css: [
+    '~/assets/styles/_reset.css'  // 引入全域 CSS 檔案
+  ],
   vite: {
     server: {
       proxy: {
@@ -14,6 +17,13 @@ export default defineNuxtConfig({
         },
       },
     },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          additionalData: '@use "~/assets/_main.scss" as *;'
+        }
+      }
+    }
   },
   i18n: {
     vueI18n: './i18n.config.ts'

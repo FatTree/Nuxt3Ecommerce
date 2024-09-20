@@ -1,0 +1,32 @@
+@mixin pad {
+    @media (min-width: 769px) and (max-width: 1100px) {
+        @content;
+    }
+}
+
+@mixin mobile {
+    @media (min-width: 375px) and (max-width:768px){
+        @content;
+    }
+}
+
+
+.container {
+    width: 100vw;
+    margin: 0 auto;
+    > .insideContainer {
+        width: 100%;
+        min-width: 1000px;
+        max-width: 1200px;
+
+        @include pad {
+            min-width: 700px;
+            max-width: 900px;
+        }
+
+        @include mobile {
+            min-width: 365px;
+            max-width: 750px;
+        }
+    }
+}
