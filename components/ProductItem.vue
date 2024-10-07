@@ -64,15 +64,19 @@ function updateParentValue(value: number) {
     box-shadow: 0px 0px 15px $white-hover;
     padding: 1.5em;
     width: 15em;
-    height: 27em;
-    margin: 0 0 2em 1em;
+    min-width: 8em;
     transition: all .5s;
     cursor: pointer;
+
+    @include pad {
+        padding: 1em;
+        width: 19%;
+    }
 
     @include mobile {
         padding: 1em;
         width: 12em;
-        height: 22em;
+        /* height: 22em; */
     }
 
     &:hover {
@@ -80,7 +84,6 @@ function updateParentValue(value: number) {
     }
 
     &__title {
-        @include title-s;
         margin-bottom: 1em;
         overflow: hidden;
         display: -webkit-box;
@@ -89,6 +92,7 @@ function updateParentValue(value: number) {
         line-clamp: 2;
         white-space: normal; 
         height: 2.7em;
+        @include title-s;
     }
 
     &__rating {
@@ -98,14 +102,13 @@ function updateParentValue(value: number) {
     }
 
     &__img {
-        width: 15em;
-        height: 15em;
         object-fit: cover;
         margin-bottom: 1em;
-
+        width: 100%;
+        /* height: 10em; */
+        
         @include mobile {
-            width: 10em;
-            height: 10em;
+            width: 100%;
         }
     }
 

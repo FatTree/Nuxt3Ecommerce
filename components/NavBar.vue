@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const { locale, locales, setLocale, availableLocales } = useI18n();
+const { $auth, $signOut } = useNuxtApp();
 
 const categoryStore = useCategory();
 const shoppingCartStore = useShoppingCartStore();
@@ -23,6 +24,7 @@ const aaa: Ref<HTMLDivElement | undefined> = ref();
 const switchLan = (lan: string) => {
   locale.value = lan;
   isLanOpen.value = false;
+  isOverlay.value = false;
 };
 
 // category
@@ -39,15 +41,21 @@ const isLanOpen: Ref<boolean> = ref(false);
 const isOverlay: Ref<boolean> = ref(false);
 const isMBMenu: Ref<boolean> = ref(false);
 
+
+
+
 const openMenu = () => {
   isMBMenu.value = !isMBMenu.value;
+  isOverlay.value = true;
 }
+
 
 const clickOverlay = () => {
   isOverlay.value = false;
   isLanOpen.value = false;
   isCateOpen.value = false;
   isCartOpen.value = false;
+  isMBMenu.value = false;
 }
 
 const openShoppingCart = () => {
@@ -65,10 +73,7 @@ const openLan = () => {
 }
 
 const clickCateItem = (cate: string) => {
-  isCateOpen.value = false;
-  isCartOpen.value = false;
-  isLanOpen.value = false;
-  isOverlay.value = true;
+  clickOverlay();
   router.push(`/${cate}`);
 };
 
@@ -92,6 +97,16 @@ const stopScrolling = () => {
   }
 }
 
+const logout = async () => {
+  isOverlay.value = false;
+  try {
+    await $signOut($auth);
+    router.push('/'); // 成功登入後重定向到儀表板頁面
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 onBeforeMount(async () => {
   await getCateProdList();
 });
@@ -104,16 +119,15 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="desktop">
-    <div class="navbar">
-      <div class="overlay" v-show="isOverlay" @click="clickOverlay"></div>
-      <div class="navbar__item">
+  <div class="nav">
+    <div class="content desktop">
+      <div class="content__item">
         <nuxt-link to="/">
           <label class="logo">
             E.Com(desktop)
           </label>
         </nuxt-link>
-        <div class="category">
+        <div class="category content__item__btn">
           <svgo-list-solid class="btn" @click="openCate"/>
           <div class="dropdown" v-show="isCateOpen">
             <ul class="dropdown__options" ref="scrollableDiv">
@@ -127,15 +141,15 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
-      <div class="navbar__item">
-        <nuxt-link to="/member">
+      <div class="content__item">
+        <nuxt-link to="/member" class="content__item__btn">
           <svgo-user-solid class="btn" />
         </nuxt-link>
-        <div class="shoppingCart">
+        <div class="shoppingCart content__item__btn">
           <svgo-cart-shopping-solid class="btn" @click="openShoppingCart" />
           <shopping-cart v-show="isCartOpen" :cartProduct="cart" />
         </div>
-        <div class="language">
+        <div class="language content__item__btn">
           <svgo-language-solid class="btn" @click="openLan" />
           <div class="dropdown" v-show="isLanOpen">
             <div class="dropdown__options">
@@ -147,23 +161,20 @@ onUnmounted(() => {
         </div>
       </div>
     </div>
-  </div>
-  <div class="pad">
-    <div class="navbar">
-      <div class="overlay" v-show="isOverlay" @click="clickOverlay"></div>
-      <div class="navbar__item">
+    <div class="content pad">
+      <div class="content__item">
         <nuxt-link to="/">
           <label class="logo">
             E.Com
           </label>
         </nuxt-link>
       </div>
-      <div class="navbar__item">
-        <div class="shoppingCart">
+      <div class="content__item">
+        <div class="shoppingCart content__item__btn">
           <svgo-cart-shopping-solid class="btn" @click="openShoppingCart" />
           <shopping-cart v-show="isCartOpen" :cartProduct="cart" />
         </div>
-        <div class="menu" @click="openMenu">
+        <div class="menu content__item__btn" @click="openMenu">
           <svgo-bars-solid class="btn" />
           <div class="menuList mobile" v-show="isMBMenu">
             <ul class="dropdown__options" ref="scrollableDiv">
@@ -201,66 +212,90 @@ onUnmounted(() => {
                   Member
                 </div>
               </nuxt-link>
+              <li @click="logout">log out</li>
             </ul>
           </div>
         </div>
       </div>
     </div>
+    <div class="overlay" @click="clickOverlay" v-show="isOverlay"></div>
   </div>
 </template>
 
-<style lang="scss">
-@media (min-width: 1101px) {
-  .desktop {
-    display: block;
-  }
-  .pad {
+<style lang="scss" scoped>
+.content.desktop {
+  display: flex;
+  @include pad {
     display: none;
   }
 }
 
-@media (max-width: 1100px) {
-  .desktop {
-    display: none;
-  }
-  .pad {
-    display: block;
+.content.pad {
+  display: none;
+  @include pad {
+    display: flex;
   }
 }
 
-.overlay {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  /* background-color: rgba(0,0,0,.2); */
-}
-
-.navbar {
+.nav {
   background: $violet-normal;
   color: $white;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   height: 50px;
   position: fixed;
   left: 0;
   right: 0;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
 
   a {
     text-decoration: none;
   }
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  @include basicRwdInsideContainer;
 
   &__item {
     display: flex;
     align-items: center;
     height: 100%;
 
-    > div, a {
+    /* > div, a {
       height: 100%;
       min-width: 3em;
       text-align: center;
+    } */
+    &__btn {
+      height: 100%;
+      min-width: 3em;
+      text-align: center;
+
+      &:after {
+        content: '';
+        display: block;
+        width: 100%;
+        height: .2em;
+        background-color: $violet-light-hover;
+        position: relative;
+        bottom: 5px;
+        left: calc(50% - 1.5em);
+        transform: scale(0, 1);
+        transition: transform .5s;
+      }
+      
+      &:hover {
+        background-color: $violet-normal-hover;
+        &:after {
+          width: 100%;
+          display: block;
+          transform: scale(1, 1);
+        }
+      }
     }
 
     .btn {
@@ -268,151 +303,100 @@ onUnmounted(() => {
       color: $white;
       cursor: pointer;
     }
-  }
-}
 
-@mixin dropdown ($right: .5em, $after: 1em) {
-  position: relative;
-
-  > .dropdown {
-    text-align: left;
-    color: $black;
-    position: absolute;
-    top: 4em;
-    right: $right;
-    width: max-content;
-    border-radius: .5em;
-    padding: .3em 0;
-    box-shadow: 0 0 1em $white-hover-active;
-    z-index: 100;
-    background-color: $white;
-    max-height: 90vh;
-
-    &::after {
-      content: '';
-      position: absolute;
-      top: -0.4em;
-      right: $after;
-      rotate: 45deg;
-      display: block;
-      background-color: $white;
-      width: .8em;
-      height: .8em;
-      z-index: 0;
+    .logo {
+      color: $yellow-normal;
+      cursor: pointer;
+      @include title-l;
+      @include pad {
+        padding-left: .5em;
+      }
     }
 
-    >.dropdown__options {
-      position: relative;
-      z-index: 1;
-      max-height: 85vh;
-      overflow-y: scroll;
-
-      > .option {
-        color: $violet-normal;
-        @include label-m;
-        padding: 1em 1.5em;
-        cursor: pointer;
-
+    .category {
+      cursor: pointer;
+      @include dropdown(-2em, 3em);
+    
+      > .dropdown > .cateBtm {
+        height: 1em;
+        text-align: center;
+    
         &:hover {
           transition: background-color .5s;
           background-color: $violet-light-hover;
         }
-      }
-    }
-  }
-}
-.desktop {
-  .category {
-    @include dropdown(-2em, 3em);
-  
-    > .dropdown > .cateBtm {
-      height: 1em;
-      text-align: center;
-  
-      &:hover {
-        transition: background-color .5s;
-        background-color: $violet-light-hover;
-      }
-  
-      > .cateBtm__arrow {
-        rotate: 90deg;
-        color: $violet-normal;
-      }
-    }
-  }
-  
-  .language {
-    @include dropdown(.5em, 1em);
-  }
-  
-  .shoppingCart {
-    @include dropdown(.5em, 1em);
-  }
-}
-
-.menu {
-  color: $black;
-  > .menuList {
-    background-color: $white;
-    border: 1px solid #000;
-    position: fixed;
-    left: 0;
-    right: 0;
-    max-height: calc(100vh - 50px);
-    overflow-y: scroll;
-
-    > .dropdown__options {
-      > .option {
-        padding: 1em 2em;
-        text-align: left;
-        color: $violet-normal;
-        display: flex;
-        justify-content: space-between;
-        @include title-s;
-
-        &:active {
-          background-color: $violet-light-active;
-        }
-
-        > .item {
-          > .btn {
-            color: $violet-normal;
-            padding-right: 1em;
-          }
-        }
-
-        .right {
-          rotate: 0deg;
-        }
-        .right.down {
+    
+        > .cateBtm__arrow {
           rotate: 90deg;
-          transition: rotate .5s;
+          color: $violet-normal;
         }
       }
-      > .optionside {
-        text-align-last: left;
-        > .optionside__options {
+    }
+    
+    .language {
+      @include dropdown(.5em, 1em);
+    }
+    
+    .menu {
+      color: $black;
+
+      > .menuList {
+        background-color: $white;
+        position: fixed;
+        left: 0;
+        right: 0;
+        max-height: calc(100vh - 50px);
+        overflow-y: scroll;
+        box-shadow: 0 0 1em $white-hover-active;
+        z-index: 100;
+    
+        > .dropdown__options {
           > .option {
-            padding: 1em 5em;
+            padding: 1em 2em;
+            text-align: left;
+            color: $violet-normal;
+            display: flex;
+            justify-content: space-between;
+            @include title-s;
+    
             &:active {
               background-color: $violet-light-active;
+            }
+    
+            > .item {
+              > .btn {
+                color: $violet-normal;
+                padding-right: 1em;
+              }
+            }
+    
+            .right {
+              rotate: 0deg;
+            }
+            .right.down {
+              rotate: 90deg;
+              transition: rotate .5s;
+            }
+          }
+          > .optionside {
+            text-align-last: left;
+            > .optionside__options {
+              > .option {
+                padding: 1em 5em;
+                &:active {
+                  background-color: $violet-light-active;
+                }
+              }
             }
           }
         }
       }
     }
   }
-
 }
 
-.logo {
-  color: $yellow-normal;
-  @include title-l;
-  
-}
-
-.category {
-  cursor: pointer;
+.shoppingCart {
+  @include dropdown(.5em, 1em);
 }
 
 .nuxt-icon {

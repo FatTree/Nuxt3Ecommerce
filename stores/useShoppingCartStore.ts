@@ -26,6 +26,10 @@ export const useShoppingCartStore = defineStore(storeName, () => {
     const addToCart = (product: cartProductModel) => {
         const item = cart.value.find(i => i.id === product.id);
         if (item) {
+            if(item.quantity + product.quantity >= product.stock) {
+                console.log('too much');
+                return;
+            }
             item.quantity = Number(product.quantity) + Number(item.quantity);
         } else {
             cart.value.push({ ...product, quantity: product.quantity });

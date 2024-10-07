@@ -34,7 +34,7 @@ const selectedTitle: Ref<string> = ref('');
 let isFiltered = false;
 const total: Ref<number> = ref(0);
 const loaded: Ref<number> = ref(0);
-const limit: Ref<number> = ref(2);
+const limit: Ref<number> = ref(4);
 
 const totalLength: Ref<number> = ref(0);
 
@@ -81,6 +81,8 @@ const loadMoreData = async () => {
 useProdHL(loadMoreData);
 
 // filter
+const isRotate: Ref<boolean> = ref(false);
+
 const switchFilterDropDown = () => {
   isFilterDropdownOpen.value = !isFilterDropdownOpen.value;
 }
@@ -161,40 +163,51 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div>
-    <img src="https://dummyjson.com/image/800x400/008080/ffffff?text=Hello+World+NO+1" alt="" />
-    <p>
-      category: {{ category }}
-    </p>
+  <div class="insideContainer">
+    <div class="banner">
+      <img src="https://dummyjson.com/image/1200x150/008080/ffffff?text=Category+Banner" alt="" />
+    </div>
+    <h3 class="WIM">
+      <NuxtLink class="WIM__link" to="/">index</NuxtLink>
+      <label class="WIM__arrow">→</label>
+      <NuxtLink class="WIM__link">{{ category }}</NuxtLink>
+    </h3>
     <div class="content">
       <div class="filter">
-        <h3 class="filter__title">
-          <svgo-filter-solid />
-          Filter
+        <h3 class="filter__title"  @click="isRotate=!isRotate">
+          <div class="filter__title__item">
+            <svgo-filter-solid />
+            Filter
+          </div>
+          <div class="filter__title__item padItem" :class="isRotate ? 'collapse' : ''">
+            <svgo-angle-right-solid />
+          </div>
         </h3>
-        <div class="filter__input filter__select" @click.stop="switchFilterDropDown">
-          <div class="selected">
-            <label for="">{{ selectedBrandName }}</label>
-            <svgo-angle-right-solid class="selectArrow" />
+        <div class="filter__content" :class="isRotate ? 'collapse' : ''">
+          <div class="select" @click.stop="switchFilterDropDown">
+            <div class="selected">
+              <label for="">{{ selectedBrandName }}</label>
+              <svgo-angle-right-solid class="selectArrow" />
+            </div>
+            <div class="options" v-show="isFilterDropdownOpen">
+              <p class="options__option" 
+                v-for="b in brand" 
+                :value="b" 
+                :key="b"
+                @click.stop="setSelectedBrandName(b)">
+                {{ b }}
+              </p>
+            </div>
           </div>
-          <div class="options" v-show="isFilterDropdownOpen">
-            <p class="options__option" 
-              v-for="b in brand" 
-              :value="b" 
-              :key="b"
-              @click.stop="setSelectedBrandName(b)">
-              {{ b }}
-            </p>
-          </div>
+          <input class="text" type="text" v-model="selectedTitle" placeholder="product name">
+          <!-- <button @click="searchProducts">search</button> -->
+          <!-- <button @click="getAll">get all</button><br> -->
         </div>
-        <input class="filter__input" type="text" v-model="selectedTitle" placeholder="product name">
-        <!-- <button @click="searchProducts">search</button>
-        <button @click="getAll">get all</button><br> -->
       </div>
-      <div>
-        <h3>product list</h3>
-        <h2>{{ category }}</h2>
-        <div class="flex" style="max-width: 1000px;flex-wrap: wrap;">
+      <div class="filterOverlay" @click="isRotate=!isRotate" :class="isRotate ? 'collapse' : ''"></div>
+      <div class="product">
+        <h3 class="product__title">{{ category }}</h3>
+        <div class="product__list">
           <ProductItem v-for="item in productList" :product="item" :category="category" />
         </div>
         <h3 v-if="isLoading">
@@ -214,20 +227,183 @@ onMounted(async () => {
   margin-bottom: 1em;
 }
 
+.banner {
+  width: 100%;
+  height: 150px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+
+  > img {
+    object-fit: contain;
+  }
+}
+
 .content {
   display: flex;
+
+  @include pad {
+    display: block;
+  }
+}
+
+.product {
+  @include pad {
+    padding: 1.5em;
+    width: calc(100% - 3em);
+  }
+
+  @include mobile {
+    padding: 1em;
+    width: calc(100% - 2em);
+  }
+
+  &__title {
+    margin-bottom: 1em;
+    @include title-m;
+  }
+
+  &__list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1em;
+
+    &::after {
+      content: "";
+      flex: auto;
+    }
+
+    > .productItem {
+      @include mobile {
+        min-width: none;
+        width: 38%;
+      }
+    }
+  }
+}
+
+@keyframes fade {
+  0% { opacity: 0 }
+  100% { opacity: 1 }
 }
 
 .filter {
-  padding: 1em;
-  border: 1px solid $white-hover;
+  padding: 1.5em;
   border-radius: .5em;
   background-color: $white;
-  /* width: 15em; */
+  width: 15em;
   height: 10em;
+  margin-right: 1em;
+  position: relative;
+  z-index: 200;
+
+  @include pad {
+    width: calc(100% - 3em);
+    height: auto;
+    border-radius: 0;
+  }
+
+  @include mobile {
+    padding: 1em;
+    width: calc(100% - 2em);
+  }
   
   &__title {
     margin-bottom: 1em;
+
+    @include pad{
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    &__item {
+      &.padItem {
+        display: none;
+
+        @include mobile {
+          display: block;
+
+          &.collapse {
+            rotate: 90deg;
+            transition: rotate .5s;
+          }
+        }
+      }
+    }
+  }
+
+  &__content {
+    @include pad {
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    @include mobile {
+      display: none;
+      position: absolute;
+      background-color: $white;
+      padding: 1em;
+      position: absolute;
+      left: 0;
+      right: 0;
+      opacity: 0;
+      
+      &.collapse {
+        display: block;
+        opacity: 1;
+        animation: fade .3s;
+      }
+    }
+
+    > .select, .text {
+      width: calc(100% - 2em);
+      @include inputBasic;
+      @include pad {
+        width: 45%;
+        margin-bottom: 0;
+      }
+      @include mobile {
+        width: -webkit-fill-available;
+        margin-bottom: 1em;
+      }
+    }
+    > .select {
+      position: relative;
+      @include label-m;
+      > .selected {
+        display: flex;
+        justify-content: space-between;
+
+        > .selectArrow {
+          rotate: 90deg;
+          width: 1em;
+          height: 1em;
+        }
+      }
+
+      
+      > .options {
+        @include inputBasic;
+        padding: 0;
+        position: absolute;
+        top: 3.2em;
+        left: 0;
+        right: 0;
+
+        .options__option {
+          padding: 1em;
+          cursor: default;
+
+          &:hover {
+            transition: background-color .5s;
+            background-color: $violet-light-hover;
+          }
+        }
+
+      }
+    }
   }
 
   &__select {
@@ -244,7 +420,6 @@ onMounted(async () => {
         height: 1em;
       }
     }
-
     
     > .options {
       @include inputBasic;
@@ -267,8 +442,28 @@ onMounted(async () => {
     }
   }  
   &__input {
+    width: calc(100% - 2em);
     @include inputBasic;
   }
 }
 
+.filterOverlay {
+  display: none;
+
+  @include pad {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 150;
+    background-color: $overlay;
+    opacity: 0;
+    &.collapse {
+      transition: opacity .5s;
+      opacity: 1;
+      display: block;
+    }
+  }
+}
 </style>

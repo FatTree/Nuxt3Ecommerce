@@ -3,10 +3,19 @@
 <template>
   <div class="layout">
     <navBar />
-    <slot />
+    <div class="container">
+      <slot />
+    </div>
   </div>
 </template>
 
-<style scoped>
-
+<style lang="scss" scoped>
+.container {
+  width: 100vw;
+  margin: 0 auto;
+  /* height: calc(100vh - 50px); */
+  padding-top: 50px;
+  display: flex;
+  justify-content: center;
+}
 </style>

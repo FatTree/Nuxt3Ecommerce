@@ -1,6 +1,6 @@
 @import './styles/_reset';
-@import './styles/_rwd';
 @import './styles/_color';
+@import './styles/_rwd';
 @import './styles/_font';
 
 * {
@@ -15,16 +15,136 @@
     display: flex;
 }
 
-.customBtn {
-    border-radius: .5em;
-    padding: 1em;
-    cursor: pointer;
-    transition: all .5s;
-    text-align: center;
-    background-color: $yellow-normal;
-    @include title-s;
+@mixin dropdown ($right: .5em, $after: 1em) {
+    position: relative;
 
-    &:hover {
-        background-color: $yellow-normal-hover;
+    > .dropdown {
+        text-align: left;
+        color: $black;
+        padding: 1em;
+        box-shadow: 0 0 1em $white-hover-active;
+        z-index: 100;
+        background-color: $white;
+        position: absolute;
+        top: 4em;
+        right: $right;
+        width: max-content;
+        border-radius: .5em;
+        max-height: 80vh;
+
+        @include pad {
+            width: calc(100vw - 2em);
+            position: fixed;
+            top: 50px;
+            right: 0;
+            left: 0;
+            border-radius: 0;
+        }
+
+        &::after {
+            content: '';
+            position: absolute;
+            top: -0.4em;
+            right: $after;
+            rotate: 45deg;
+            display: block;
+            background-color: $white;
+            width: .8em;
+            height: .8em;
+            z-index: 0;
+
+            @include pad {
+                display: none;
+            }
+        }
+
+        >.dropdown__options {
+            position: relative;
+            z-index: 1;
+            max-height: 75vh;
+            overflow-y: scroll;
+            @include label-m;
+            
+            > .option {
+                color: $violet-normal;
+                padding: 1em 1.5em;
+                cursor: pointer;
+                
+
+                &:hover {
+                    transition: background-color .5s;
+                    background-color: $violet-light-hover;
+                }
+            }
+        }
+    }
+}
+
+
+
+@mixin basicBtn {
+    &{
+        border-radius: .5em;
+        cursor: pointer;
+        transition: all .5s;
+        text-align: center;
+        background-color: $yellow-normal;
+        
+        &:hover {
+            background-color: $yellow-normal-hover;
+        }
+    }
+}
+
+.customBtn {
+    padding: 1em;
+    @include title-s;
+    @include basicBtn;
+
+    &-md {
+        padding: .5em;
+        @include label-m;
+        @include basicBtn;
+        @include mobile {
+            padding: 1em;
+            @include title-s;
+        }
+    }
+}
+
+.WIM {
+    margin: 1em 0;
+    @include label-s;
+
+    &__link {
+        color: $black;
+        &:hover {
+            color: $violet-normal;
+        }
+    }
+
+    &__arrow {
+        margin: 0 1em;
+        color: $white-hover-active;
+    }
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: $overlay;
+}
+
+input {
+    padding: .5em;
+    border-radius: .5em;
+    border: 1px solid $violet-normal;
+    @include label-m;
+
+    @include mobile {
+        padding: 1em .5em;
     }
 }
