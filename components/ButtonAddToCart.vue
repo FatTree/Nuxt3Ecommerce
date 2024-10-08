@@ -95,7 +95,7 @@ const addCartAction = (cartProduct: cartProductModel) => {
         display: block;
         width: 16em;
         height: 16em;
-        animation: zoomout 1s linear;
+        animation: zoomout 1s;
     }
 }
 </style>

@@ -30,6 +30,9 @@ onMounted(() => {
     <div class="dropdown cart">
         <h3 class="title">shopping cart</h3>
         <div class="dropdown__options">
+            <div class="emptyOption" v-if="cartProduct?.length === 0">
+                購物車尚未有任何品項
+            </div>
             <div v-for="item in cartProduct" :key="item.id" class="option">
                 <img :src="item.thumbnail" 
                     class="option__img">
@@ -46,6 +49,8 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .dropdown.cart {
+    height: auto;
+    max-height: none;
     @include pad {
         
     }
@@ -53,31 +58,45 @@ onMounted(() => {
     > .title {
         color: $violet-normal;
         text-align: left;
-        padding: .5em 1em;
+        padding: .5em 0;
         @include title-m;
     }
 
-    > .dropdown__options > .option {
-        width: 350px;
-        display: flex;
-        justify-content: space-between;
-        text-align: left;
-        cursor: default;
-
+    > .dropdown__options {
+        max-height: 69vh;
+        overflow-y: scroll;
         @include pad {
-            width: calc(100vw - 2em);
+            max-height: 72vh;
         }
 
-        &:hover {
-            background-color: $white;
+        > .emptyOption {
+            color: $white-hover-active;
+            @include label-m;
         }
 
-        > .btn {
-            padding-top: 1em;
-            color: $white-hover;
-            cursor: pointer;
+        > .option {
+            width: 350px;
+            display: flex;
+            justify-content: space-between;
+            text-align: left;
+            cursor: default;
+    
+            @include pad {
+                width: calc(100vw - 2em);
+            }
+    
+            &:hover {
+                background-color: $white;
+            }
+    
+            > .btn {
+                padding-top: 1em;
+                color: $white-hover;
+                cursor: pointer;
+            }
         }
     }
+
 
     > .customBtn {
         margin-top: 1em;

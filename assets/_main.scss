@@ -30,7 +30,7 @@
         right: $right;
         width: max-content;
         border-radius: .5em;
-        max-height: 80vh;
+        // max-height: 80vh;
 
         @include pad {
             width: calc(100vw - 2em);
@@ -64,6 +64,8 @@
             max-height: 75vh;
             overflow-y: scroll;
             @include label-m;
+
+            
             
             > .option {
                 color: $violet-normal;

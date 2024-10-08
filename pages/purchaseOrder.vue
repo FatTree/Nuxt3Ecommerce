@@ -41,8 +41,10 @@ const handleQuantityChange = (prod: cartProductModel) => {
 const parentValue: Ref<number> = ref(1);
 
 function updateParentValue(value: number) {
-  parentValue.value = value; // 更新父元件的值
+  parentValue.value = value; 
 }
+
+const isDetailOpen: Ref<boolean> = ref(false);
 
 onMounted(() => {
   loadCart();
@@ -106,10 +108,10 @@ definePageMeta({
       </div>
       <div class="purchaseOrder__content__right">
         <div class="totalItem">
-          <h3 class="totalItem__title">
-            Detail
-          </h3>
-          <div class="totalItem__content">
+          <div class="totalItem__content"  :class="isDetailOpen ? 'open' : ''">
+            <h3 class="totalItem__content__title">
+              Detail
+            </h3>
             <div class="totalItem__content__item">
               <p class="itemGroup">
                 <label class="itemGroup__label">商品數量: </label>
@@ -132,7 +134,17 @@ definePageMeta({
                 {{ (totalAmount * 1.012).toFixed(2) }} cad
               </p>
             </div>
-            <div class="totalItem__content__btn customBtn">
+          </div>
+          <div class="totalItem__bottom">
+            <div class="bottomGroup">
+              <div class="bottomGroup__icon" @click="isDetailOpen = !isDetailOpen" :class="isDetailOpen ? 'open' : ''">
+                <svgo-angle-right-solid />
+              </div>
+              <p class="bottomGroup__item">
+                總金額: <label>{{ (totalAmount * 1.012).toFixed(2) }} cad </label>
+              </p>
+            </div>
+            <div class="customBtn">
               結帳
             </div>
           </div>
@@ -144,6 +156,10 @@ definePageMeta({
 
 <style lang="scss" scoped>
 .purchaseOrder {
+  @include pad {
+    height: 100vh;
+    overflow: scroll;
+  }
   &__content {
     display: flex;
 
@@ -165,15 +181,16 @@ definePageMeta({
 
       &__left {
         width: auto;
+        margin-bottom: 100px;
       }
 
       &__right {
         width: 100%;
-        border: 1px solid #000;
         position: fixed;
         bottom: 0;
         left: 0;
         right: 0;
+        padding: 0;
       }
     }
   }
@@ -285,43 +302,122 @@ definePageMeta({
   }
 }
 
+@keyframes example {
+  0% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+    display: none;
+  }
+  20% {
+    display: block;
+  }
+  30% {
+    transform: scaleY(.5);
+    transform-origin: bottom;
+  }
+  100% {
+    transform: scaleY(1);
+    transform-origin: bottom;
+  }
+}
+
 .totalItem {
   background-color: $white;
   border-radius: .5em;
   padding: 1em;
   box-shadow: 0px 0px 5px $white-hover;
+  position: fixed;
+  width: 19em;
 
-  &__title {
-    text-align: center;
-    border-bottom: 1px solid $violet-normal;
-    padding-bottom: 1em;
-    @include title-m;
+  @include pad {
+    position: initial;
+    width: auto;;
   }
 
+  
   &__content {
     @include label-m;
+
+    @include pad {
+      display: none;
+      
+      &.open {
+        animation: example .1s linear 0s 1 alternate;
+        display: block; 
+      }
+    }
+    
+    &__title {
+      text-align: center;
+      border-bottom: 1px solid $violet-normal;
+      padding-bottom: 1em;
+      @include title-m;
+    }
 
     &__item {
       padding: 1em 0;
       border-bottom: 1px solid $violet-normal;
     }
 
-    &__btn {
-      margin-top: 1em;
+  }
+  &__bottom {
+    margin-top: 1em;
+
+    > .bottomGroup {
+      display: none;
+    }
+
+    @include pad {
+      display: flex;
+      justify-content: space-between;
+      
+      > .bottomGroup {
+        display: flex;
+        align-items: center;
+      }
     }
   }
-
 }
+
+.bottomGroup {
+  &__icon {
+    border-radius: 50%;
+    height: 2em;
+    width: 2em;
+    background-color: $white-hover;
+    rotate: -90deg;
+    margin-right: 1em;
+
+    &.open {
+      background: $white-hover-active;
+      rotate: 90deg;
+      transition: all .5s;
+    }
+
+    > svg {
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+  &__item {
+    > label {
+      @include title-m;
+    }
+  }
+}
+
 .itemGroup {
   display: flex;
   @include label-m;
-  height: 2em;
+  line-height: 2em;
 
   &__label {
     display: block;
     width: 30%;
     text-align: right;
-    margin-right: 1em;
+    margin-right: 1.5em;
   }
 }
 </style>
